@@ -1,0 +1,701 @@
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+
+struct antre{
+	char nama[10];
+	int tipe;
+	int umur; 
+	struct antre *next;
+}*kamarSatu = NULL, *kamarDua = NULL, *kamarTiga = NULL, *kamarEmpat = NULL, *kamarLima = NULL;
+
+void tampilkan();
+void menu(int *pm);
+void menuTerpilih(int mt,int *exit);
+void continuesButton();
+int cekNama(char alias[], int *flag);
+int tipePijet();
+void countAntre();
+void countUmur();
+void enqueue(char alias[],int tipe);
+int pilih();
+void enq(struct antre *make, struct antre *temp, int choice);
+void notif(char alias[], int tipe);
+void simulasiWaktu();
+void checkUmurkamar();
+void dequeue(int pilih);
+void tambahPendapatan(int pilih);
+void keluarin(int flag,char alias[]);
+int out(char alias[], struct antre* temp);
+void tampilanAwal();
+void judul();
+void petunjuk();
+int isEmpty();
+
+int jumlahAntre[5];
+int jumlahUmurAscending[5];
+int jumlahUmur[5];
+int age[3] = {60,120,150};
+int harga[3] ={100000,120000,160000};
+int clock = 30;
+int antrean;
+int jumlah_pendapatan;
+int jumlah_waktu;
+
+int main(){
+	int pilih_menu,exit;
+	
+	tampilanAwal();
+
+	do{
+		system("cls");
+		judul();
+		tampilkan();
+		menu(&pilih_menu);
+		menuTerpilih(pilih_menu,&exit);
+	}while(exit != 1);
+
+	return 0;
+}
+
+void tampilkan(){
+	struct antre *temp1,*temp2,*temp3,*temp4,*temp5;
+
+	printf("\nKamar 1 ");
+	if(kamarSatu == NULL){
+		printf("( Kosong )");
+	}else{
+		temp1 = kamarSatu;
+		printf("( %s, waktu sisa : %d menit) ",temp1->nama,temp1->umur);
+		temp1 = temp1->next;
+		while(temp1 != NULL){
+			printf("<-- %s ",temp1->nama);
+			temp1 = temp1->next;
+		}		
+	}
+	
+	printf("\nKamar 2 ");
+	if(kamarDua == NULL){
+		printf("( Kosong )");
+	}else{
+		temp2 = kamarDua;
+		printf("( %s, waktu sisa : %d menit) ",temp2->nama,temp2->umur);
+		temp2 = temp2->next;
+		while(temp2 != NULL){
+			printf("<-- %s ",temp2->nama);
+			temp2 = temp2->next;
+		}		
+	}
+	
+	printf("\nKamar 3 ");
+	if(kamarTiga == NULL){
+		printf("( Kosong )");
+	}else{
+		temp3 = kamarTiga;
+		printf("( %s, waktu sisa : %d menit) ",temp3->nama,temp3->umur);
+		temp3 = temp3->next;
+		while(temp3 != NULL){
+			printf("<-- %s ",temp3->nama);
+			temp3 = temp3->next;
+		}		
+	}
+	
+	printf("\nKamar 4 ");
+	if(kamarEmpat == NULL){
+		printf("( Kosong )");
+	}else{
+		temp4 = kamarEmpat;
+		printf("( %s, waktu sisa : %d menit) ",temp4->nama,temp4->umur);
+		temp4 = temp4->next;
+		while(temp4 != NULL){
+			printf("<-- %s ",temp4->nama);
+			temp4 = temp4->next;
+		}		
+	}
+	
+	printf("\nKamar 5 ");
+	if(kamarLima == NULL){
+		printf("( Kosong )");
+	}else{
+		temp5 = kamarLima;
+		printf("( %s, waktu sisa : %d menit) ",temp5->nama,temp5->umur);
+		temp5 = temp5->next;
+		while(temp5 != NULL){
+			printf("<-- %s ",temp5->nama);
+			temp5 = temp5->next;
+		}		
+	}
+	printf("\nPendapatan hari ini : Rp.%d",jumlah_pendapatan);
+}
+
+void menu(int *pm){
+	printf("\n\nMenu :\n");
+	printf("1. Tambah Pelanggan\n");
+	printf("2. Pelanggan keluar\n");
+	printf("3. simulasi waktu ( %d menit)\n",clock);
+	printf("4. Petunjuk\n");
+	printf("5. Selesai\n");
+	do{
+		printf("pilihan : ");
+		scanf("%d",pm);
+		if(*pm<1 || *pm>5){
+			printf("pilihan diantara 1 - 5, silahkan isi lagi.\n");
+		}
+	}while(*pm<1 || *pm>5);
+	
+}
+
+void menuTerpilih(int mt, int *exit){
+	char alias[15];
+	int dec, tipe, temp_waktu,flag,pil;
+	switch(mt){
+		case 1:
+			do{
+				printf("\nmasukkan nama :");
+				scanf("%s",&alias);
+				dec = cekNama(alias,&flag);
+				if(dec != 0){
+					printf("sudah terdaftar. silahkan isi dengan nama yang berbeda.\n");
+				}
+			}while(dec != 0);
+			tipe = tipePijet();
+			if(tipe == 4){break;
+			}
+			enqueue(alias, tipe);
+			notif(alias, tipe);
+			continuesButton();
+			*exit = 0;
+			break;
+		case 2:
+			pil = isEmpty();
+			if(pil == 0){
+				printf("tidak ada pelanggan.");
+				continuesButton();
+				break;
+			}
+			do{
+				flag = 0;
+				printf("\nmasukkan nama pelanggan yang sudah selesai (jika tidak jadi isi 0) : ");
+				scanf("%s",&alias);
+				if(alias[0]=='0'){
+					break;
+				}
+				dec = cekNama(alias,&flag);
+				if(dec == 0){
+					printf("tidak ada pelanggan dengan nama pemilik tersebut. silahkan isi dengan nama yang berbeda.\n");
+				}
+			}while(dec == 0);
+			keluarin(flag,alias);
+			*exit = 0;
+			break;
+		case 3:
+			simulasiWaktu();
+			*exit = 0;
+			break;
+		case 4:
+			petunjuk();
+			*exit = 0;
+			continuesButton();
+			break;
+		case 5:
+			*exit = 1;
+			system("cls");
+			printf("Hari ini, didapat penghasilan sebesar Rp.%d\n",jumlah_pendapatan);
+			printf("Terimakasih telah menggunakan program ini!\n\n");
+		}
+	}
+
+void continuesButton(){
+	printf("\nTekan apapun untuk melanjutkan!");
+	getch();
+}
+
+int cekNama(char alias[], int *flag){
+	struct antre *temp1,*temp2,*temp3,*temp4,*temp5;
+	temp1 = kamarSatu;
+	temp2 = kamarDua;
+	temp3 = kamarTiga;
+	temp4 = kamarEmpat;
+	temp5 = kamarLima;
+	
+	int check = 0;
+
+	if(temp1 != NULL){
+		while(temp1 != NULL){
+			if(strcmp(alias,temp1->nama) == 0){
+				check++;
+				*flag = 1;	
+			}
+			temp1 = temp1->next;
+		}	
+	}
+	if(temp2 != NULL){
+		while(temp2 != NULL){
+			if(strcmp(alias,temp2->nama) == 0){
+				check++;
+				*flag = 2;
+			}
+			temp2 = temp2->next;
+		}	
+	}
+	if(temp3 != NULL){
+		while(temp3 != NULL){
+			if(strcmp(alias,temp3->nama) == 0){
+				check++;
+				*flag = 3;	
+			}
+			temp3 = temp3->next;
+		}	
+	}
+	if(temp4 != NULL){
+		while(temp4 != NULL){
+			if(strcmp(alias,temp4->nama) == 0){
+				check++;
+				*flag = 4;	
+			}
+			temp4 = temp4->next;
+		}	
+	}
+	if(temp5 != NULL){
+		while(temp5 != NULL){
+			if(strcmp(alias,temp5->nama) == 0){
+				check++;
+				*flag = 5;	
+			}
+			temp5 = temp5->next;
+		}	
+	}
+	return check;
+}
+
+int tipePijet(){
+	int ch;
+	printf("\nNo.\t Tipe\t\t Lama Pengerjaan\t harga\n");
+	printf("1.\t Refleksi\t %d menit\t\t Rp.%d\n",age[0],harga[0]);
+	printf("2.\t Full Body\t %d menit\t\t Rp.%d\n",age[1],harga[1]);
+	printf("3.\t Full Body ++\t %d menit\t\t Rp.%d\n",age[2],harga[2]);
+	printf("4. Tidak Jadi\n");
+	do{
+		printf("Pilihan : ");
+		scanf("%d",&ch);
+		if(ch<1 || ch>4){
+			printf("pilihan diantara 1 - 4, silahkan isi lagi.\n");
+		}
+	}while(ch<1 || ch>4);
+	return ch;
+}
+
+void countAntre(){
+	
+	int count;
+	struct antre *temp1,*temp2,*temp3,*temp4,*temp5;
+	temp1 = kamarSatu;
+	temp2 = kamarDua;
+	temp3 = kamarTiga;
+	temp4 = kamarEmpat;
+	temp5 = kamarLima;
+	
+	count = 0;
+	while(temp1 != NULL){
+		temp1 = temp1->next;
+		count++;
+	}
+	jumlahAntre[0] = count;
+	
+	count = 0;
+	while(temp2 != NULL){
+		
+		temp2 = temp2->next;
+		count++;
+		
+	}
+	jumlahAntre[1] = count;
+	
+	count = 0;
+	while(temp3 != NULL){
+		temp3 = temp3->next;
+		count++;
+	}
+	jumlahAntre[2] = count;
+	
+	count = 0;
+	while(temp4 != NULL){
+		temp4 = temp4->next;
+		count++;
+	}
+	jumlahAntre[3] = count;
+	
+	count = 0;
+	while(temp5 != NULL){
+		temp5 = temp5->next;
+		count++;
+	}
+	jumlahAntre[4] = count;
+}
+
+void countUmur(){
+	struct antre *temp1,*temp2,*temp3,*temp4,*temp5;
+	temp1 = kamarSatu;
+	temp2 = kamarDua;
+	temp3 = kamarTiga;
+	temp4 = kamarEmpat;
+	temp5 = kamarLima;
+	
+	jumlahUmur[0] = 0;jumlahUmur[1] = 0;jumlahUmur[2] = 0;jumlahUmur[3] = 0;jumlahUmur[4] = 0;
+	
+	if(kamarSatu == NULL){
+		jumlahUmur[0] = 0;
+	}else{
+		while(temp1!=NULL){
+			jumlahUmur[0] += temp1->umur;
+			temp1 = temp1->next;
+		}	
+	}
+	if(kamarDua == NULL){
+		jumlahUmur[1] = 0;
+	}else{
+		while(temp2!=NULL){
+			jumlahUmur[1] += temp2->umur;
+			temp2 = temp2->next;
+		}
+	}
+	if(kamarTiga == NULL){
+		jumlahUmur[2] = 0;
+	}else{
+		while(temp3!=NULL){
+			jumlahUmur[2] += temp3->umur;
+			temp3 = temp3->next;
+		}
+	}
+	if(kamarEmpat == NULL){
+		jumlahUmur[3] = 0;
+	}
+	else{
+		while(temp4!=NULL){
+			jumlahUmur[3] += temp4->umur;
+			temp4 = temp4->next;
+		}
+	}
+	if(kamarLima == NULL){
+		jumlahUmur[4] = 0;
+	}else{
+		while(temp5!=NULL){
+			jumlahUmur[4] += temp5->umur;
+			temp5 = temp5->next;
+		}
+	}
+}
+
+void enqueue(char alias[], int tipe){
+	int choice;
+	
+	struct antre *make, *temp;
+	make = (struct antre*)malloc(sizeof(struct antre));
+	
+	if(make == NULL){
+		
+	}else{
+		strcpy(make->nama,alias);
+		make->next = NULL;
+		switch(tipe){
+			case 1:
+				make->tipe = 1;
+				make->umur = age[0];
+				break;
+			case 2:
+				make->tipe = 2;
+				make->umur = age[1];
+				break;
+			case 3:
+				make->tipe = 3;
+				make->umur = age[2];	
+		}
+	}
+	
+	countUmur();
+	choice = pilih();
+	switch(choice){
+		case 0:
+			temp = kamarSatu;
+			enq(make,temp,choice);
+			break;
+		case 1:
+			temp = kamarDua;
+			enq(make,temp,choice);
+			break;
+		case 2:
+			temp = kamarTiga;
+			enq(make,temp,choice);
+			break;
+		case 3:
+			temp = kamarEmpat;
+			enq(make,temp,choice);
+			break;
+		case 4:
+			temp = kamarLima;
+			enq(make,temp,choice);
+			break;
+	}
+}
+
+int pilih(){
+	int c, d, swap;
+	jumlahUmurAscending[0] = jumlahUmur[0];
+	jumlahUmurAscending[1] = jumlahUmur[1];
+	jumlahUmurAscending[2] = jumlahUmur[2];
+	jumlahUmurAscending[3] = jumlahUmur[3];
+	jumlahUmurAscending[4] = jumlahUmur[4];
+	
+	for (c = 0 ; c < 4; c++){
+    	for (d = 0 ; d < 4 - c ; d++){
+      		if (jumlahUmurAscending[d] > jumlahUmurAscending[d+1]){
+        		swap = jumlahUmurAscending[d];
+        		jumlahUmurAscending[d] = jumlahUmurAscending[d+1];
+        		jumlahUmurAscending[d+1] = swap;
+      		}
+    	}
+	}
+	for (c = 0; c < 5; c++){
+    	if (jumlahUmur[c] == jumlahUmurAscending[0]){
+        	break;
+    	}
+	}
+	antrean = c;
+  	return c;
+}
+
+void enq(struct antre *make, struct antre *temp, int choice){
+	
+	if(temp == NULL){
+		switch(choice){
+		case 0:
+			kamarSatu = make;
+			break;
+		case 1:
+			kamarDua = make;
+			break;
+		case 2:
+			kamarTiga = make;
+			break;
+		case 3:
+			kamarEmpat = make;
+			break;
+		case 4:
+			kamarLima = make;
+			break; 
+		}
+	}else{
+		while(temp->next != NULL){
+			temp = temp->next;
+		}
+		make->next = NULL;
+		temp->next = make;		
+	}	
+}			
+
+void simulasiWaktu(){
+	if(kamarSatu != NULL){
+		kamarSatu->umur -= clock;
+	}
+	if(kamarDua != NULL){
+		kamarDua->umur -= clock;
+	}
+	if(kamarTiga != NULL){
+		kamarTiga->umur -= clock;
+	}
+	if(kamarEmpat != NULL){
+		kamarEmpat->umur -= clock;
+	}
+	if(kamarLima != NULL){
+		kamarLima->umur -= clock;
+	}
+	checkUmurkamar();
+}
+
+void notif(char alias[], int tipe){
+	int temp_waktu;
+	printf("\npelanggan atas nama %s berhasil ditambahkan, perkiraan lama waktu hingga selesai adalah",alias);
+	switch(tipe){
+		case 1:
+			temp_waktu = age[0];break;
+		case 2:
+			temp_waktu = age[1];break;
+		case 3:
+			temp_waktu = age[2];break;	
+		}
+	switch(antrean){
+		case 0:
+			printf(" %d menit.\n",jumlahUmur[0]+temp_waktu);break;
+		case 1:
+			printf(" %d menit.\n",jumlahUmur[1]+temp_waktu);break;
+		case 2:
+			printf(" %d menit.\n",jumlahUmur[2]+temp_waktu);break;
+		case 3:
+			printf(" %d menit.\n",jumlahUmur[3]+temp_waktu);break;
+		case 4:
+			printf(" %d menit.\n",jumlahUmur[4]+temp_waktu);break;
+		}
+}
+
+void checkUmurkamar(){
+	if(kamarSatu != NULL){
+		if(kamarSatu->umur == 0){
+			dequeue(0);
+		}
+	}
+	if(kamarDua != NULL){
+		if(kamarDua->umur == 0){
+			dequeue(1);
+		}
+	}
+	if(kamarTiga != NULL){
+		if(kamarTiga->umur == 0){
+			dequeue(2);
+		}
+	}
+	if(kamarEmpat != NULL){
+		if(kamarEmpat->umur == 0){
+			dequeue(3);
+		}
+	}
+	if(kamarLima != NULL){
+		if(kamarLima->umur == 0){
+			dequeue(4);
+		}
+	}
+}
+
+void dequeue(int pilih){
+	struct antre *temp;
+	switch(pilih){
+		case 0:
+			tambahPendapatan(kamarSatu->tipe);
+			temp = kamarSatu;
+			kamarSatu = kamarSatu->next;
+			free(temp);
+			break;
+		case 1:
+			tambahPendapatan(kamarDua->tipe);
+			temp = kamarDua;
+			kamarDua = kamarDua->next;
+			free(temp);
+			break;
+		case 2:
+			tambahPendapatan(kamarTiga->tipe);
+			temp = kamarTiga;
+			kamarTiga = kamarTiga->next;
+			free(temp);
+			break;
+		case 3:
+			tambahPendapatan(kamarEmpat->tipe);
+			temp = kamarEmpat;
+			kamarEmpat = kamarEmpat->next;
+			free(temp);
+			break;
+		case 4:
+			tambahPendapatan(kamarLima->tipe);
+			temp = kamarLima;
+			kamarLima = kamarLima->next;
+			free(temp);
+			break;
+	}
+}
+
+void tambahPendapatan(int pilih){
+	switch(pilih){
+		case 1:
+			jumlah_pendapatan += harga[0];break;
+			jumlah_waktu += age[0];
+		case 2:
+			jumlah_pendapatan += harga[1];break;
+			jumlah_waktu += age[1];
+		case 3:
+			jumlah_pendapatan += harga[2];break;
+			jumlah_waktu += age[2];
+	}
+}
+
+void keluarin(int flag, char alias[]){
+	struct antre *temp1,*temp2,*temp3,*temp4,*temp5; 
+	temp1 = kamarSatu;
+	temp2 = kamarDua;
+	temp3 = kamarTiga;
+	temp4 = kamarEmpat;
+	temp5 = kamarLima;
+	
+	switch(flag){
+		case 1:
+			out(alias,temp1);
+			break;
+		case 2:
+			out(alias,temp2);
+			break;
+		case 3:
+			out(alias,temp3);
+			break;
+		case 4:
+			out(alias,temp4);
+			break;
+		case 5:
+			out(alias,temp5);
+			break;	
+	}
+	continuesButton();	
+}
+
+int out(char alias[], struct antre* temp){
+	struct antre *freed;
+	if(strcmp(alias,temp->nama) == 0){
+		printf("\npelanggan yang sedang dipijat tidak bisa dikeluarkan, silahkan menunggu sebentar.\n");
+	}else{
+		while(strcmp(alias,temp->next->nama)!=0){
+			temp = temp->next;
+		}
+		freed = temp->next;
+		temp->next = temp->next->next;
+		free(freed);
+	}
+}
+
+void tampilanAwal(){
+	judul();
+	petunjuk();
+	continuesButton();
+	system("cls");
+}
+
+void judul(){
+	printf("---------------------------------------------\n");
+	printf("**** SIMULASI TEMPAT PIJAT BY RIDIL INC. ****\n");
+	printf("---------------------------------------------\n");
+}
+
+void petunjuk(){
+	printf("\nPetunjuk Penggunaan Program : \n");
+	printf("-ditampilkan selalu tabel yang berisi kamar yang terdapat pelanggannya\n");
+	printf("-Untuk menambah pelanggan pilih 1 pada menu\n");
+	printf("-Untuk mengeluarkan pelanggan dari antrian pilih 2 pada menu\n");
+	printf("-Untuk menjalankan simulasi selama 10 menit pilih 3 pada menu\n");
+	printf("-Untuk melihat petunjuk pilih 4 pada menu\n");
+	printf("-Untuk keluar dari program pilih 5 pada menu\n");
+	}
+	
+int isEmpty(){
+		int check;
+	if(kamarSatu != NULL){
+			check++;
+	}
+	if(kamarDua != NULL){
+			check++;
+	}
+	if(kamarTiga != NULL){
+			check++;
+	}
+	if(kamarEmpat != NULL){
+			check++;
+	}
+	if(kamarLima != NULL){
+			check++;
+	}
+	return check;
+}
